@@ -2,40 +2,39 @@ using UnityEngine;
 
 public class Player_JumpState : EntityState
 {
-    float minJumpTime = 0.1f;
-    public Player_JumpState(Player player, Rigidbody rb, StateMachine stateMachine, string stateName) : base(player, rb, stateMachine, stateName)
+    public Player_JumpState(Player player, Rigidbody rb, StateMachine stateMachine, string stateName, StateChecks stateChecks) : base(player, rb, stateMachine, stateName, stateChecks)
     {
     }
+    float jumpBuffer = 0.1f;
+
     public override void Enter()
     {
         base.Enter();
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, player.jumpHeight, rb.linearVelocity.z);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, player.jumpHeight, rb.linearVelocity.y);
     }
     public override void Update()
     {
         base.Update();
-        if(stateTimer < minJumpTime) return;
+        if(stateTimer < jumpBuffer) return;
 
-        // Check if we're falling
-        if(player.stateChecks.IsGrounded() && rb.linearVelocity.y <= 0.1f)
+        if (stateChecks.IsGrounded())
         {
-            if(player.moveVector == Vector2.zero)
-                stateMachine.ChangeState(player.idleState);
-            // To Move State
             if(player.moveVector.sqrMagnitude > 0.01f)
                 stateMachine.ChangeState(player.moveState);
+            if(player.moveVector == Vector2.zero)
+                stateMachine.ChangeState(player.idleState);
         }
-        // To Idle State
     }
     public override void FixedUpdate()
     {
         base.FixedUpdate();
         Move();
     }
+
     private void Move()
     {
-        Vector3 getCameraRelativeMovement = player.GetCameraRelativeMovement(player.moveVector);
+        Vector3 cameraRelativeMovement = player.GetCameraRelativeMovement(player.moveVector);
         float inAirSpeed = player.moveSpeed * player.inAirSpeedMultiplier;
-        player.SetVelocityXZ(getCameraRelativeMovement, inAirSpeed);
+        player.SetVelocity(cameraRelativeMovement, inAirSpeed);
     }
 }

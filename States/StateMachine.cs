@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class StateMachine
 {
-    public EntityState currentState;
+    EntityState currentState;
+
     public void Initialize(EntityState startState)
     {
         currentState = startState;
@@ -12,10 +13,10 @@ public class StateMachine
     {
         if(newState == null)
         {
-            Debug.LogError("Trying to access a null state!");
+            Debug.LogError("Trying to access a null State!");
             return;
         }
-        currentState.Exit();
+        currentState?.Exit();
         currentState = newState;
         currentState.Enter();
     }

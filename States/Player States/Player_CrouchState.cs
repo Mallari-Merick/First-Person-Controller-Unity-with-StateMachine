@@ -2,33 +2,45 @@ using UnityEngine;
 
 public class Player_CrouchState : EntityState
 {
-    public Player_CrouchState(Player player, Rigidbody rb, StateMachine stateMachine, string stateName) : base(player, rb, stateMachine, stateName)
+    public Player_CrouchState(Player player, Rigidbody rb, StateMachine stateMachine, string stateName, StateChecks stateChecks) : base(player, rb, stateMachine, stateName, stateChecks)
     {
     }
-
+    public override void Enter()
+    {
+        base.Enter();
+        player.SetCrouchHeight(true);
+    }
+    public override void Exit()
+    {
+        base.Exit();
+        player.SetCrouchHeight(false);
+    }
     public override void Update()
     {
         base.Update();
-        // To Idle State
-        if(!player.HandleCrouching() && player.moveVector == Vector2.zero)
-            stateMachine.ChangeState(player.idleState);
-        // To Move State
-        if(!player.HandleCrouching() && player.moveVector.sqrMagnitude > 0.01)
-            stateMachine.ChangeState(player.moveState);
-        // To Jump state
-        if(player.HandleJumping() && player.stateChecks.IsGrounded())
-            stateMachine.ChangeState(player.jumpState);
+        if (!stateChecks.IsCrouching(player.inputActions))
+        {
+            // To Move state
+            if(player.moveVector.sqrMagnitude > 0.01f)
+                stateMachine.ChangeState(player.moveState);
+            // To Idle state
+            if(player.moveVector == Vector2.zero)
+                stateMachine.ChangeState(player.idleState);
+            // To Jump State
+            if(player.HandleJumping() && stateChecks.IsGrounded())
+                stateMachine.ChangeState(player.jumpState);
+        }
     }
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        CrouchMove();
+        Move();
     }
 
-    private void CrouchMove()
+    private void Move()
     {
         Vector3 getCameraRelativeMovement = player.GetCameraRelativeMovement(player.moveVector);
-        float crouchSpeed = player.moveSpeed * player.crouchSpeedMultiplier;
-        player.SetVelocityXZ(getCameraRelativeMovement, crouchSpeed);
+        float moveSpeed = player.moveSpeed * player.crouchSpeedMultiplier;
+        player.SetVelocity(getCameraRelativeMovement, moveSpeed);
     }
 }

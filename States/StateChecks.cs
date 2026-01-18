@@ -3,32 +3,32 @@ using UnityEngine;
 public class StateChecks : MonoBehaviour
 {
     [Header("Ground Check")]
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] float groundRadius = 0.2f;
+    [SerializeField] Transform groundCheck;
+    [SerializeField] float groundCheckRadius = 0.2f;
     [SerializeField] LayerMask groundLayer;
 
-    bool isGrounded;
-    bool isCrouching;
     void OnDrawGizmosSelected()
     {
         if(groundCheck == null) return;
 
         Gizmos.color = Color.green;
         // GroundCheck
-        Gizmos.DrawWireSphere(groundCheck.position, groundRadius);
-    }
-    public bool IsGrounded()
-    {
-        return isGrounded = Physics.CheckSphere(
-            groundCheck.position,
-            groundRadius,
-            groundLayer
-        );
+        Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
     }
     public bool IsCrouching(PlayerInputMap inputActions)
     {
-        isCrouching = inputActions.Player.Crouch.IsPressed();
-        return isCrouching;
+        return inputActions.Player.Crouch.IsPressed();
+    }
+    public bool IsGrounded()
+    {
+        return Physics.CheckSphere(
+            groundCheck.position, 
+            groundCheckRadius, 
+            groundLayer
+            );
+    }
+    public bool IsSprinting(PlayerInputMap inputActions)
+    {
+        return inputActions.Player.Sprint.IsPressed();
     }
 }
-
