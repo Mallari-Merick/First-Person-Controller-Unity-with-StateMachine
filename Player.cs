@@ -16,9 +16,12 @@ public class Player : MonoBehaviour
     public Player_IdleState idleState {get; private set;}
     public Player_JumpState jumpState {get; private set;}
     public Player_MoveState moveState {get; private set;}
+    public Player_FallState fallState {get; private set;}
     [Header("Crouch Settings")]
     public float crouchHeightMultiplier = 0.5f;
     [Header("Movement Settings")]
+    [Range(0f, 1f)]
+    public float airControlStrength = 0.5f;
     public float inAirSpeedMultiplier;
     public float crouchSpeedMultiplier = 0.5f;
     public Vector2 moveVector {get; private set;}
@@ -46,6 +49,7 @@ public class Player : MonoBehaviour
         idleState = new Player_IdleState(this, rb, stateMachine, "idle", stateChecks);
         jumpState = new Player_JumpState(this, rb, stateMachine, "jump", stateChecks);
         moveState = new Player_MoveState(this, rb, stateMachine, "move", stateChecks);
+        fallState = new Player_FallState(this, rb, stateMachine, "onAir", stateChecks);
     }
     void Start()
     {

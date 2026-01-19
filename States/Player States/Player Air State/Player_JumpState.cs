@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Player_JumpState : EntityState
+public class Player_JumpState : Player_AirState
 {
     public Player_JumpState(Player player, Rigidbody rb, StateMachine stateMachine, string stateName, StateChecks stateChecks) : base(player, rb, stateMachine, stateName, stateChecks)
     {
@@ -10,31 +10,27 @@ public class Player_JumpState : EntityState
     public override void Enter()
     {
         base.Enter();
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, player.jumpHeight, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, player.jumpHeight, rb.linearVelocity.z);
     }
     public override void Update()
     {
         base.Update();
         if(stateTimer < jumpBuffer) return;
 
+        // Transition to OnAir state when moving upward slows or reverses
+        if(rb.linearVelocity.y <= 0f)
+        {
+            stateMachine.ChangeState(player.fallState);
+            return;
+        }
+
+        // Early landing during jump
         if (stateChecks.IsGrounded())
         {
             if(player.moveVector.sqrMagnitude > 0.01f)
                 stateMachine.ChangeState(player.moveState);
-            if(player.moveVector == Vector2.zero)
+            else
                 stateMachine.ChangeState(player.idleState);
         }
-    }
-    public override void FixedUpdate()
-    {
-        base.FixedUpdate();
-        Move();
-    }
-
-    private void Move()
-    {
-        Vector3 cameraRelativeMovement = player.GetCameraRelativeMovement(player.moveVector);
-        float inAirSpeed = player.moveSpeed * player.inAirSpeedMultiplier;
-        player.SetVelocity(cameraRelativeMovement, inAirSpeed);
     }
 }
