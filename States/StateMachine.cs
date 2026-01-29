@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class StateMachine
+public class StateMachine 
 {
     EntityState currentState;
 
@@ -13,11 +13,11 @@ public class StateMachine
     {
         if(newState == null)
         {
-            Debug.LogError("Trying to access a null State!");
+            Debug.LogError("Trying to access a null state!");
             return;
         }
         currentState?.Exit();
-        currentState = newState;
+        currentState= newState;
         currentState.Enter();
     }
     public void UpdateCurrentState()
